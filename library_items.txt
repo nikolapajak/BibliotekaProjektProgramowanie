@@ -1,0 +1,3 @@
+BOOK;8989;Harry Potter;J.K Rowling;false
+BOOK;7777;Lśnienie;S. King;false
+BOOK;4444;Miasteczko Salem;S. King;false

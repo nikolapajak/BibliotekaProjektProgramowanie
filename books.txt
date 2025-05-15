@@ -1,0 +1,2 @@
+B001;Wiedźmin;Sapkowski;Fantasy;1997;false
+B001;Wiedźmin;Sapkowski;Fantasy;1997;false

@@ -1,34 +1,51 @@
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Ekran logowania – wybór trybu użytkownika.
- */
 public class LoginScreen extends JFrame {
+    private JTextField firstNameField;
+    private JTextField lastNameField;
+    private JComboBox<String> roleBox;
 
     public LoginScreen() {
-        super("Logowanie do biblioteki");
+        super("Logowanie");
+        initComponents();
+    }
 
-        JButton userButton = new JButton("Zaloguj się jako Użytkownik");
-        JButton librarianButton = new JButton("Zaloguj się jako Pracownik");
+    private void initComponents() {
+        setLayout(new GridLayout(4, 2, 5, 5));
 
-        userButton.addActionListener(e -> {
-            dispose(); // zamknij okno logowania
-            new LibraryGUI("user"); // otwórz GUI w trybie użytkownika
-        });
+        add(new JLabel("Imię:"));
+        firstNameField = new JTextField();
+        add(firstNameField);
 
-        librarianButton.addActionListener(e -> {
+        add(new JLabel("Nazwisko:"));
+        lastNameField = new JTextField();
+        add(lastNameField);
+
+        add(new JLabel("Rola:"));
+        roleBox = new JComboBox<>(new String[]{"user", "librarian"});
+        add(roleBox);
+
+        JButton loginButton = new JButton("Zaloguj");
+        loginButton.addActionListener(e -> {
+            String firstName = firstNameField.getText().trim();
+            String lastName = lastNameField.getText().trim();
+            String role = (String) roleBox.getSelectedItem();
+
+            if (firstName.isEmpty() || lastName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Proszę wprowadzić imię i nazwisko.");
+                return;
+            }
+
             dispose();
-            new LibraryGUI("librarian"); // otwórz GUI w trybie pracownika
+            new LibraryGUI(role, firstName, lastName);
         });
 
-        setLayout(new GridLayout(2, 1, 10, 10));
-        add(userButton);
-        add(librarianButton);
+        add(loginButton);
 
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 150);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
     }
 }

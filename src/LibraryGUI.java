@@ -3,30 +3,46 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class LibraryGUI extends JFrame {
     private String role;
-
     private Library library;
     private JTable table;
     private ItemTableModel tableModel;
     private User currentUser;
+    private Librarian currentLibrarian;
 
-    public LibraryGUI(String role) {
+    public LibraryGUI(String role, String firstName, String lastName) {
         super("System biblioteczny");
-        this.role = role;
+        this.role = role.toLowerCase();
+        library = new Library();
+
+        // Załaduj dane z pliku
+        List<Item> loadedItems = LibraryFileManager.loadItemsFromFile();
+        for (Item item : loadedItems) {
+            library.addItem(item);
+        }
+
+        if (this.role.equals("user")) {
+            currentUser = new User(firstName, lastName);
+            library.addUser(currentUser);
+        } else if (this.role.equals("librarian")) {
+            currentLibrarian = new Librarian(firstName, lastName, 0);
+            library.addLibrarian(currentLibrarian);
+        }
+
         initComponents();
     }
 
     private void initComponents() {
-        library = new Library();
         setLayout(new BorderLayout());
 
-        // Górny panel z przyciskiem wyloguj i polem wyszukiwania
         JPanel topPanel = new JPanel(new BorderLayout());
 
         JButton logoutButton = new JButton("Wyloguj");
         logoutButton.addActionListener(e -> {
+            LibraryFileManager.saveItemsToFile(library.getAllItems());
             dispose();
             new LoginScreen();
         });
@@ -49,22 +65,17 @@ public class LibraryGUI extends JFrame {
 
         topPanel.add(logoutButton, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);
-
         add(topPanel, BorderLayout.NORTH);
 
-        // Tabela i model tabeli
         tableModel = new ItemTableModel();
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        if (role.equals("user")) {
-            currentUser = new User("Jan", "Kowalski");
-            library.addUser(currentUser);
+        for (Item item : library.getAllItems()) {
+            tableModel.addItem(item);
+        }
 
-            for (Item item : library.getAllItems()) {
-                tableModel.addItem(item);
-            }
-
+        if (role.equalsIgnoreCase("user")) {
             JButton borrowButton = new JButton("Wypożycz");
             JButton returnButton = new JButton("Zwróć");
 
@@ -73,8 +84,9 @@ public class LibraryGUI extends JFrame {
                 if (row != -1) {
                     Item item = tableModel.getItemAt(row);
                     try {
-                        library.borrowItem(item.getId(), currentUser);
+                        library.borrowItem(UUID.fromString(item.getId()), currentUser);
                         tableModel.fireTableDataChanged();
+                        LibraryFileManager.saveItemsToFile(library.getAllItems());
                         JOptionPane.showMessageDialog(this, "Wypożyczono: " + item.getTitle());
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Błąd: " + ex.getMessage());
@@ -89,8 +101,9 @@ public class LibraryGUI extends JFrame {
                 if (row != -1) {
                     Item item = tableModel.getItemAt(row);
                     try {
-                        library.returnItem(item.getId(), currentUser);
+                        library.returnItem(UUID.fromString(item.getId()), currentUser);
                         tableModel.fireTableDataChanged();
+                        LibraryFileManager.saveItemsToFile(library.getAllItems());
                         JOptionPane.showMessageDialog(this, "Zwrócono: " + item.getTitle());
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Błąd: " + ex.getMessage());
@@ -107,27 +120,41 @@ public class LibraryGUI extends JFrame {
             add(scrollPane, BorderLayout.CENTER);
             add(buttonPanel, BorderLayout.SOUTH);
 
-        } else if (role.equals("librarian")) {
-            JTextField idField = new JTextField(8);
-            JTextField titleField = new JTextField(10);
-            JTextField authorField = new JTextField(10);
+        } else if (role.equalsIgnoreCase("librarian")) {
+            JTextField titleField = new JTextField(15);
+            JTextField authorField = new JTextField(15);
+            JTextField yearField = new JTextField(5);
+            JTextField genreField = new JTextField(15);
 
             JButton addBookButton = new JButton("Dodaj książkę");
             JButton removeButton = new JButton("Usuń zaznaczoną");
 
             addBookButton.addActionListener(e -> {
-                String id = idField.getText();
-                String title = titleField.getText();
-                String author = authorField.getText();
-                if (!id.isEmpty() && !title.isEmpty() && !author.isEmpty()) {
-                    Book book = new Book(id, title, author);
+                String title = titleField.getText().trim();
+                String author = authorField.getText().trim();
+                String yearText = yearField.getText().trim();
+                String genre = genreField.getText().trim();
+
+                if (title.isEmpty() || author.isEmpty() || yearText.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Proszę wypełnić wszystkie pola (gatunek może być pusty).");
+                    return;
+                }
+
+                try {
+                    int year = Integer.parseInt(yearText);
+                    UUID id = UUID.randomUUID();
+
+                    Book book = new Book(id, title, year, author, genre);
                     library.addItem(book);
                     tableModel.addItem(book);
-                    idField.setText("");
+
+                    // Wyczyść pola
                     titleField.setText("");
                     authorField.setText("");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Proszę wypełnić wszystkie pola.");
+                    yearField.setText("");
+                    genreField.setText("");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Rok musi być liczbą całkowitą.");
                 }
             });
 
@@ -135,24 +162,22 @@ public class LibraryGUI extends JFrame {
                 int row = table.getSelectedRow();
                 if (row != -1) {
                     Item item = tableModel.getItemAt(row);
-                    library.getAllItems().remove(item);
+                    library.removeItem(item);
                     tableModel.removeItemAt(row);
                 } else {
                     JOptionPane.showMessageDialog(this, "Proszę wybrać przedmiot do usunięcia.");
                 }
             });
 
-            for (Item item : library.getAllItems()) {
-                tableModel.addItem(item);
-            }
-
             JPanel formPanel = new JPanel();
-            formPanel.add(new JLabel("ID:"));
-            formPanel.add(idField);
             formPanel.add(new JLabel("Tytuł:"));
             formPanel.add(titleField);
             formPanel.add(new JLabel("Autor:"));
             formPanel.add(authorField);
+            formPanel.add(new JLabel("Rok:"));
+            formPanel.add(yearField);
+            formPanel.add(new JLabel("Gatunek:"));
+            formPanel.add(genreField);
             formPanel.add(addBookButton);
             formPanel.add(removeButton);
 
@@ -161,19 +186,15 @@ public class LibraryGUI extends JFrame {
         }
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(800, 520);
+        setSize(950, 600);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
     private static class ItemTableModel extends AbstractTableModel {
-        private final String[] columnNames = {"ID", "Tytuł", "Autor", "Status"};
+        private final String[] columnNames = {"UUID", "Tytuł", "Autor", "Rok", "Gatunek", "Status"};
         private final List<Item> items = new ArrayList<>();
         private final List<Item> allItems = new ArrayList<>();
-
-        public ItemTableModel() {
-            // konstruktor bez argumentów
-        }
 
         public Item getItemAt(int row) {
             return items.get(row);
@@ -197,11 +218,13 @@ public class LibraryGUI extends JFrame {
             if (text.isEmpty()) {
                 items.addAll(allItems);
             } else {
+                String lowerText = text.toLowerCase();
                 for (Item item : allItems) {
-                    String content = item.getId().toLowerCase() + " " +
+                    String content = item.getId().toString().toLowerCase() + " " +
                             item.getTitle().toLowerCase() + " " +
-                            (item instanceof Book ? ((Book) item).getAuthor().toLowerCase() : "");
-                    if (content.contains(text)) {
+                            (item instanceof Book ? ((Book) item).getAuthor().toLowerCase() + " " + ((Book) item).getGenre().toLowerCase() : "") + " " +
+                            String.valueOf(item.getYear());
+                    if (content.contains(lowerText)) {
                         items.add(item);
                     }
                 }
@@ -228,10 +251,12 @@ public class LibraryGUI extends JFrame {
         public Object getValueAt(int rowIndex, int columnIndex) {
             Item item = items.get(rowIndex);
             switch (columnIndex) {
-                case 0: return item.getId();
+                case 0: return item.getId().toString();
                 case 1: return item.getTitle();
                 case 2: return (item instanceof Book) ? ((Book) item).getAuthor() : "-";
-                case 3: return item.isBorrowed() ? "wypożyczona" : "dostępna";
+                case 3: return item.getYear();
+                case 4: return (item instanceof Book) ? ((Book) item).getGenre() : "-";
+                case 5: return item.isBorrowed() ? "wypożyczona" : "dostępna";
                 default: return "";
             }
         }

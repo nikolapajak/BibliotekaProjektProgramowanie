@@ -1,13 +1,21 @@
+import java.util.UUID;
+
 public class Book extends Item implements Loanable {
     private String author;
+    private String genre;
 
-    public Book(String id, String title, String author) {
-        super(id, title);
+    public Book(UUID id, String title, int year, String author, String genre) {
+        super(id, title, year);
         this.author = author;
+        this.genre = genre;
     }
 
     public String getAuthor() {
         return author;
+    }
+
+    public String getGenre() {
+        return genre;
     }
 
     @Override
@@ -28,11 +36,6 @@ public class Book extends Item implements Loanable {
 
     @Override
     public String displayDetails() {
-        return getId() + " - " + getTitle() + " (Autor: " + author + ")" + (isBorrowed() ? " (wypożyczona)" : "");
-    }
-
-    @Override
-    public String toString() {
-        return displayDetails();
+        return getId().toString() + " - " + getTitle() + " (Autor: " + author + ", Gatunek: " + genre + ")" + (isBorrowed() ? " (wypożyczona)" : "");
     }
 }

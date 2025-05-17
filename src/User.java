@@ -1,41 +1,26 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Klasa reprezentująca użytkownika biblioteki.
- */
 public class User extends Human {
-    private List<Item> borrowedItems;
+    private List<Item> borrowedItems = new ArrayList<>();
 
     public User(String firstName, String lastName) {
         super(firstName, lastName);
-        this.borrowedItems = new ArrayList<>();
-    }
-
-    public void borrowItem(Item item) {
-        borrowedItems.add(item);
-    }
-
-    public void returnItem(Item item) {
-        borrowedItems.remove(item);
-    }
-
-    /**
-     * Sprawdza, czy użytkownik ma przeterminowane wypożyczenia.
-     * Aktualna implementacja jest tymczasowa i zawsze zwraca false.
-     * Rozbuduj ją, odwołując się do rzeczywistych rekordów wypożyczeń.
-     */
-    public boolean hasOverdueItems() {
-        // TODO: rozbuduj tę metodę zgodnie z logiką przeterminowanych wypożyczeń
-        return false;
     }
 
     public List<Item> getBorrowedItems() {
         return borrowedItems;
     }
 
-    @Override
-    public String toString() {
-        return getFirstName() + " " + getLastName();
+    public void borrowItem(Item item) throws InvalidItemException {
+        if (item.isBorrowed()) throw new InvalidItemException("Przedmiot jest już wypożyczony.");
+        item.setBorrowed(true);
+        borrowedItems.add(item);
+    }
+
+    public void returnItem(Item item) throws InvalidItemException {
+        if (!borrowedItems.contains(item)) throw new InvalidItemException("Przedmiot nie jest wypożyczony przez użytkownika.");
+        item.setBorrowed(false);
+        borrowedItems.remove(item);
     }
 }

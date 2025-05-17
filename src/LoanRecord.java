@@ -1,38 +1,29 @@
 import java.time.LocalDate;
 
-/**
- * Klasa reprezentująca pojedynczy zapis wypożyczenia.
- */
 public class LoanRecord {
-    private User user;
-    private Item item;
-    private LocalDate borrowDate;
-    private LocalDate dueDate;
+    private final User user;
+    private final Item item;
+    private final LocalDate loanDate;
+    private LocalDate returnDate;
 
-    public LoanRecord(User user, Item item, LocalDate borrowDate, LocalDate dueDate) {
+    public LoanRecord(User user, Item item) {
         this.user = user;
         this.item = item;
-        this.borrowDate = borrowDate;
-        this.dueDate = dueDate;
+        this.loanDate = LocalDate.now();
+        this.returnDate = null;
     }
 
-    public User getUser() {
-        return user;
-    }
+    public User getUser() { return user; }
+    public Item getItem() { return item; }
+    public LocalDate getLoanDate() { return loanDate; }
+    public LocalDate getReturnDate() { return returnDate; }
 
-    public Item getItem() {
-        return item;
-    }
-
-    public LocalDate getBorrowDate() {
-        return borrowDate;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
+    public void setReturnDate(LocalDate returnDate) {
+        this.returnDate = returnDate;
     }
 
     public boolean isOverdue() {
-        return LocalDate.now().isAfter(dueDate);
+        if (returnDate != null) return false;
+        return loanDate.plusWeeks(2).isBefore(LocalDate.now()); // 2 tygodnie termin zwrotu
     }
 }

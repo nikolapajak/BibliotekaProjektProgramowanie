@@ -1,20 +1,28 @@
+import java.util.UUID;
+
 public abstract class Item {
-    private String id;
+    private UUID id;
     private String title;
+    private int year;
     protected boolean borrowed;
 
-    public Item(String id, String title) {
+    public Item(UUID id, String title, int year) {
         this.id = id;
         this.title = title;
+        this.year = year;
         this.borrowed = false;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public int getYear() {
+        return year;
     }
 
     public boolean isBorrowed() {
@@ -28,7 +36,12 @@ public abstract class Item {
     public abstract String displayDetails();
 
     @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
     public String toString() {
-        return id + " - " + title + (borrowed ? " (wypożyczone)" : "");
+        return displayDetails();
     }
 }

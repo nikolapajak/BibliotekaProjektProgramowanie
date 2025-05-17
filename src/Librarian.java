@@ -1,19 +1,16 @@
-/**
- * Klasa reprezentująca bibliotekarza.
- */
 public class Librarian extends Human {
-    private String employeeId;
+    private int salary;
 
-    public Librarian(String firstName, String lastName, String employeeId) {
+    public Librarian(String firstName, String lastName, int salary) {
         super(firstName, lastName);
-        this.employeeId = employeeId;
+        this.salary = salary;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
+    public int getSalary() {
+        return salary;
     }
 
-    public String getDetails() {
-        return "Bibliotekarz: " + getFullName() + " (ID: " + employeeId + ")";
+    public void setSalary(int salary) {
+        this.salary = salary;
     }
 }

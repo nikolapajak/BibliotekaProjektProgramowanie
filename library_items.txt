@@ -1,3 +1,4 @@
-BOOK;8989;Harry Potter;J.K Rowling;false
-BOOK;7777;Lśnienie;S. King;false
-BOOK;4444;Miasteczko Salem;S. King;false
+BOOK;B001;Harry Potter;1999;J.K Rowling;Fantazy;true
+BOOK;B002;Lśnienie;1977;S. King;Horror;true
+BOOK;B003;1984;1948;G. Orwell;Fantastyka naukowa;false
+BOOK;B004;Ludzie Bezdomni;1900;S. Żermoski;Powieść;false

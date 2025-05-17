@@ -1,51 +1,64 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
+/**
+ * LoginScreen is a simple GUI for selecting the user role (Librarian or User) at startup.
+ */
 public class LoginScreen extends JFrame {
-    private JTextField firstNameField;
-    private JTextField lastNameField;
-    private JComboBox<String> roleBox;
+    private Library library;
 
-    public LoginScreen() {
-        super("Logowanie");
-        initComponents();
-    }
+    public LoginScreen(Library library) {
+        super("Library System - Wybór roli");
+        this.library = library;
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(300, 150);
+        this.setLayout(new GridLayout(3, 1));
 
-    private void initComponents() {
-        setLayout(new GridLayout(4, 2, 5, 5));
+        JLabel prompt = new JLabel("Zaloguj się jako:", SwingConstants.CENTER);
+        prompt.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
+        this.add(prompt);
 
-        add(new JLabel("Imię:"));
-        firstNameField = new JTextField();
-        add(firstNameField);
+        // Buttons for roles
+        JPanel buttonPanel = new JPanel();
+        JButton librarianButton = new JButton("Bibliotekarz");
+        JButton userButton = new JButton("Użytkownik");
+        buttonPanel.add(librarianButton);
+        buttonPanel.add(userButton);
+        this.add(buttonPanel);
 
-        add(new JLabel("Nazwisko:"));
-        lastNameField = new JTextField();
-        add(lastNameField);
+        // Info label at bottom
+        JLabel infoLabel = new JLabel("Wybierz rolę, aby rozpocząć", SwingConstants.CENTER);
+        this.add(infoLabel);
 
-        add(new JLabel("Rola:"));
-        roleBox = new JComboBox<>(new String[]{"user", "librarian"});
-        add(roleBox);
-
-        JButton loginButton = new JButton("Zaloguj");
-        loginButton.addActionListener(e -> {
-            String firstName = firstNameField.getText().trim();
-            String lastName = lastNameField.getText().trim();
-            String role = (String) roleBox.getSelectedItem();
-
-            if (firstName.isEmpty() || lastName.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Proszę wprowadzić imię i nazwisko.");
-                return;
-            }
-
+        // Bibliotekarz
+        librarianButton.addActionListener(e -> {
+            Librarian lib = new Librarian("Bibliotekarz", 5000.0);
+            new LibraryGUI(library, lib);
             dispose();
-            new LibraryGUI(role, firstName, lastName);
         });
 
-        add(loginButton);
+        // Użytkownik
+        userButton.addActionListener(e -> {
+            String username = JOptionPane.showInputDialog(this, "Podaj swoje imię:", "Logowanie", JOptionPane.QUESTION_MESSAGE);
+            if (username == null || username.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Imię użytkownika nie może być puste.", "Błąd", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            username = username.trim();
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(300, 150);
-        setLocationRelativeTo(null);
-        setVisible(true);
+            // Szukamy użytkownika w zapisanych
+            User user = library.getUsers().get(username);
+            if (user == null) {
+                user = new User(username);
+                library.addUser(user);
+            }
+
+            new LibraryGUI(library, user);
+            dispose();
+        });
+
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
     }
 }

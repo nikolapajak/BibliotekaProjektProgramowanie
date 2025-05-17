@@ -1,16 +1,17 @@
+/**
+ * Librarian is a type of Human with a salary, representing a library staff member.
+ */
 public class Librarian extends Human {
-    private int salary;
+    private double salary;
 
-    public Librarian(String firstName, String lastName, int salary) {
-        super(firstName, lastName);
+    public Librarian(String name, double salary) {
+        super(name);
         this.salary = salary;
     }
-
-    public int getSalary() {
+    public double getSalary() {
         return salary;
     }
-
-    public void setSalary(int salary) {
+    public void setSalary(double salary) {
         this.salary = salary;
     }
 }

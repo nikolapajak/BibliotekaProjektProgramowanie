@@ -1,9 +1,15 @@
-import java.util.UUID;
-
+/**
+ * Magazine is a type of Item that is loanable and has an issue number.
+ */
 public class Magazine extends Item implements Loanable {
+    private static final long serialVersionUID = 1L;
     private int issueNumber;
 
-    public Magazine(UUID id, String title, int year, int issueNumber) {
+    public Magazine(String title, int year, int issueNumber) {
+        super(title, year);
+        this.issueNumber = issueNumber;
+    }
+    public Magazine(java.util.UUID id, String title, int year, int issueNumber) {
         super(id, title, year);
         this.issueNumber = issueNumber;
     }
@@ -13,23 +19,27 @@ public class Magazine extends Item implements Loanable {
     }
 
     @Override
-    public void borrow(User user) throws InvalidItemException {
-        if (isBorrowed()) {
-            throw new InvalidItemException("Magazyn jest już wypożyczony.");
+    public String displayDetails() {
+        String details = "Czasopismo: \"" + title + "\" (" + year + "), numer: " + issueNumber;
+        if (borrowed) {
+            details += " [WYPOŻYCZONE]";
         }
-        setBorrowed(true);
+        return details;
+    }
+
+    @Override
+    public void borrow() throws InvalidItemException {
+        if (borrowed) {
+            throw new InvalidItemException("Przedmiot \"" + title + "\" jest już wypożyczony.");
+        }
+        borrowed = true;
     }
 
     @Override
     public void returnItem() throws InvalidItemException {
-        if (!isBorrowed()) {
-            throw new InvalidItemException("Magazyn nie był wypożyczony.");
+        if (!borrowed) {
+            throw new InvalidItemException("Przedmiot \"" + title + "\" nie jest aktualnie wypożyczony.");
         }
-        setBorrowed(false);
-    }
-
-    @Override
-    public String displayDetails() {
-        return getId().toString() + " - " + getTitle() + " (Rok: " + getYear() + ", Nr wydania: " + issueNumber + ")" + (isBorrowed() ? " (wypożyczony)" : "");
+        borrowed = false;
     }
 }

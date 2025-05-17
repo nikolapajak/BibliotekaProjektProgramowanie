@@ -1,16 +1,13 @@
-public abstract class Human {
-    private String firstName;
-    private String lastName;
+/**
+ * Human is a base class for people in the system (User or Librarian).
+ */
+public class Human {
+    protected String name;
 
-    public Human(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Human(String name) {
+        this.name = name;
     }
-
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
+    public String getName() {
+        return name;
     }
 }

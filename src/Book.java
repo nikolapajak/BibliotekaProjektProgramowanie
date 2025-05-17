@@ -1,10 +1,17 @@
-import java.util.UUID;
-
+/**
+ * Book is a type of Item that is loanable and has an author and genre.
+ */
 public class Book extends Item implements Loanable {
+    private static final long serialVersionUID = 1L;
     private String author;
     private String genre;
 
-    public Book(UUID id, String title, int year, String author, String genre) {
+    public Book(String title, int year, String author, String genre) {
+        super(title, year);
+        this.author = author;
+        this.genre = genre;
+    }
+    public Book(java.util.UUID id, String title, int year, String author, String genre) {
         super(id, title, year);
         this.author = author;
         this.genre = genre;
@@ -13,29 +20,33 @@ public class Book extends Item implements Loanable {
     public String getAuthor() {
         return author;
     }
-
     public String getGenre() {
         return genre;
     }
 
     @Override
-    public void borrow(User user) throws InvalidItemException, OverdueException {
-        if (isBorrowed()) {
-            throw new InvalidItemException("Książka jest już wypożyczona.");
-        }
-        setBorrowed(true);
-    }
-
-    @Override
-    public void returnItem() throws InvalidItemException, OverdueException {
-        if (!isBorrowed()) {
-            throw new InvalidItemException("Książka nie była wypożyczona.");
-        }
-        setBorrowed(false);
-    }
-
-    @Override
     public String displayDetails() {
-        return getId().toString() + " - " + getTitle() + " (Autor: " + author + ", Gatunek: " + genre + ")" + (isBorrowed() ? " (wypożyczona)" : "");
+        String details = "Książka: \"" + title + "\" (" + year + "), autor: " + author + ", gatunek: " + genre;
+        if (borrowed) {
+            details += " [WYPOŻYCZONA]";
+        }
+        return details;
     }
+
+    @Override
+    public void borrow() throws InvalidItemException {
+        if (borrowed) {
+            throw new InvalidItemException("Przedmiot \"" + title + "\" jest już wypożyczony.");
+        }
+        borrowed = true;
+    }
+
+    @Override
+    public void returnItem() throws InvalidItemException {
+        if (!borrowed) {
+            throw new InvalidItemException("Przedmiot \"" + title + "\" nie jest aktualnie wypożyczony.");
+        }
+        borrowed = false;
+    }
+    
 }

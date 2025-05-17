@@ -1,26 +1,31 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class User extends Human {
-    private List<Item> borrowedItems = new ArrayList<>();
+/**
+ * User is a library patron who can borrow items and has a record of loans.
+ */
+public class User extends Human implements java.io.Serializable {
 
-    public User(String firstName, String lastName) {
-        super(firstName, lastName);
+    private List<LoanRecord> loanHistory;
+
+    public User(String name) {
+        super(name);
+        this.loanHistory = new ArrayList<>();
     }
-
-    public List<Item> getBorrowedItems() {
-        return borrowedItems;
+    public List<LoanRecord> getLoanHistory() {
+        return loanHistory;
     }
-
-    public void borrowItem(Item item) throws InvalidItemException {
-        if (item.isBorrowed()) throw new InvalidItemException("Przedmiot jest już wypożyczony.");
-        item.setBorrowed(true);
-        borrowedItems.add(item);
-    }
-
-    public void returnItem(Item item) throws InvalidItemException {
-        if (!borrowedItems.contains(item)) throw new InvalidItemException("Przedmiot nie jest wypożyczony przez użytkownika.");
-        item.setBorrowed(false);
-        borrowedItems.remove(item);
+    /**
+     * Checks if this user currently has any overdue items.
+     * @return true if an item is borrowed past its due date, false otherwise.
+     */
+    public boolean hasOverdueItems() {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        for (LoanRecord record : loanHistory) {
+            if (!record.isReturned() && record.getDueDate().isBefore(today)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -1,4 +1,3 @@
-BOOK;B001;Harry Potter;1999;J.K Rowling;Fantazy;true
-BOOK;B002;Lśnienie;1977;S. King;Horror;true
-BOOK;B003;1984;1948;G. Orwell;Fantastyka naukowa;false
-BOOK;B004;Ludzie Bezdomni;1900;S. Żermoski;Powieść;false
+MAGAZINE;fa709d80-e4f4-4d25-a841-9e40b1da77b9;Newsweek;2011;201;false
+BOOK;62bf9931-34b4-4e3a-91f8-b24ccde28d5f;1984;1948;G. Orwell;Fantastyka Naukowa;false
+BOOK;92128067-a699-42c9-8bd3-69ce4e5dfb68;Lśnienie;1977;S. King;Horror;false

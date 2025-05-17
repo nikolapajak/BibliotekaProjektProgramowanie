@@ -1,29 +1,62 @@
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class LoanRecord {
-    private final User user;
-    private final Item item;
-    private final LocalDate loanDate;
+/**
+ * LoanRecord represents a single borrowing transaction of an item by a user.
+ * It contains the item, borrow date, due date, and return date (if returned).
+ */
+public class LoanRecord implements Serializable {
+    private static final long serialVersionUID = 1L;
+    public static final int LOAN_PERIOD_DAYS = 14;
+
+    private Item item;
+    private LocalDate borrowDate;
+    private LocalDate dueDate;
     private LocalDate returnDate;
 
-    public LoanRecord(User user, Item item) {
-        this.user = user;
+    public LoanRecord(Item item) {
         this.item = item;
-        this.loanDate = LocalDate.now();
+        this.borrowDate = LocalDate.now();
+        this.dueDate = borrowDate.plusDays(LOAN_PERIOD_DAYS);
         this.returnDate = null;
     }
 
-    public User getUser() { return user; }
-    public Item getItem() { return item; }
-    public LocalDate getLoanDate() { return loanDate; }
-    public LocalDate getReturnDate() { return returnDate; }
-
+    public Item getItem() {
+        return item;
+    }
+    public LocalDate getBorrowDate() {
+        return borrowDate;
+    }
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+    public LocalDate getReturnDate() {
+        return returnDate;
+    }
+    public boolean isReturned() {
+        return returnDate != null;
+    }
     public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
     }
 
-    public boolean isOverdue() {
-        if (returnDate != null) return false;
-        return loanDate.plusWeeks(2).isBefore(LocalDate.now()); // 2 tygodnie termin zwrotu
+    /**
+     * Returns a string describing this loan record, including dates.
+     */
+    @Override
+    public String toString() {
+        String itemTitle = item.getTitle();
+        String itemType = (item instanceof Book ? "Książka" : (item instanceof Magazine ? "Czasopismo" : "Pozycja"));
+        String info = itemType + " \"" + itemTitle + "\" - wypożyczono: " + borrowDate;
+        if (returnDate != null) {
+            info += ", zwrócono: " + returnDate;
+        } else {
+            info += ", nie zwrócono";
+            // indicate overdue if past due date
+            if (LocalDate.now().isAfter(dueDate)) {
+                info += " (PRZETERMINOWANE)";
+            }
+        }
+        return info;
     }
 }
